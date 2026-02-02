@@ -1,4 +1,4 @@
-# 3D Print Pricing Calculator
+# 3D Print Cost Analyzer
 
 A local web app for calculating 3D print pricing based on real measured values. Built with vanilla HTML, CSS, and JavaScript – no frameworks required.
 
