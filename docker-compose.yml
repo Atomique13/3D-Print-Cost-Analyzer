@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  3d-print-analyzer:
+    image: ghcr.io/atomique13/3d-print-cost-analyzer:latest
+    ports:
+      - "${PORT:-8080}:80"
+    volumes:
+      # Mount a local directory for potential data persistence (optional)
+      # Note: Data is stored in browser localStorage, so this is for static files or custom data
+      - ./data:/usr/share/nginx/html/data
+    environment:
+      - PORT=${PORT:-8080}

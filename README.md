@@ -22,13 +22,24 @@ A sleek, local web app for 3D printing enthusiasts and businesses. Built with va
 
 ## Quick Start
 
+### Local (No Installation)
 1. Download or clone the repo
 2. Open `index.html` in your browser
 3. Set printer power and electricity price
 4. Add jobs and fill in details
 5. View calculated costs and profits
 
-No setup required – works offline!
+### Docker
+1. Pull the image: `docker pull ghcr.io/atomique13/3d-print-cost-analyzer:latest`
+2. Run: `docker run -p 8080:80 ghcr.io/atomique13/3d-print-cost-analyzer:latest`
+3. Open http://localhost:8080 in your browser
+
+### Docker Compose
+1. Set environment variable: `export PORT=8080` (or your preferred port)
+2. Run: `docker-compose up`
+3. Open http://localhost:$PORT in your browser
+
+**Note**: Data is stored in your browser's localStorage. For persistence across sessions, use the same browser. The volume mount is optional for custom data.
 
 ## Usage Guide
 
