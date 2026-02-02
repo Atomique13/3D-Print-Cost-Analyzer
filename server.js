@@ -117,28 +117,6 @@ app.get('/api/data', requireAuth, (req, res) => {
 
 app.post('/api/data', requireAuth, (req, res) => {
   try {
-    // Backup existing data before import/save
-    if (fs.existsSync(DATA_FILE)) {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-      const backupFile = `${DATA_FILE}.import-backup-${timestamp}`;
-      fs.copyFileSync(DATA_FILE, backupFile);
-      console.log(`✓ Import backup created: ${backupFile}`);
-      
-      // Keep only last 10 import backups
-      const backupFiles = fs.readdirSync(path.dirname(DATA_FILE))
-        .filter(f => f.startsWith('data.json.import-backup-'))
-        .map(f => path.join(path.dirname(DATA_FILE), f))
-        .sort()
-        .reverse();
-      
-      if (backupFiles.length > 10) {
-        backupFiles.slice(10).forEach(f => {
-          fs.unlinkSync(f);
-          console.log(`✓ Removed old import backup: ${path.basename(f)}`);
-        });
-      }
-    }
-    
     fs.writeFileSync(DATA_FILE, JSON.stringify(req.body, null, 2));
     res.sendStatus(200);
   } catch (err) {
@@ -150,6 +128,28 @@ app.post('/api/data', requireAuth, (req, res) => {
 // Serve login page without authentication
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
+});
+
+// Get last backup timestamp
+app.get('/api/last-backup', requireAuth, (req, res) => {
+  try {
+    const backupFiles = fs.readdirSync(path.dirname(DATA_FILE))
+      .filter(f => f.startsWith('data.json.auto-backup-'))
+      .map(f => {
+        const stats = fs.statSync(path.join(path.dirname(DATA_FILE), f));
+        return { name: f, time: stats.mtime };
+      })
+      .sort((a, b) => b.time - a.time);
+    
+    if (backupFiles.length > 0) {
+      res.json({ lastBackup: backupFiles[0].time });
+    } else {
+      res.json({ lastBackup: null });
+    }
+  } catch (err) {
+    console.error('Error getting last backup:', err);
+    res.json({ lastBackup: null });
+  }
 });
 
 // Protect all other static files

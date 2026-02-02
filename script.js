@@ -388,6 +388,43 @@ function handleImport() {
     }
 }
 
+// Update backup status display
+async function updateBackupStatus() {
+    try {
+        const response = await fetch('/api/last-backup');
+        if (response.ok) {
+            const data = await response.json();
+            const backupText = document.getElementById('backup-text');
+            if (data.lastBackup) {
+                const backupTime = new Date(data.lastBackup);
+                const now = new Date();
+                const diffMs = now - backupTime;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMins / 60);
+                
+                let timeAgo;
+                if (diffMins < 1) {
+                    timeAgo = 'just now';
+                } else if (diffMins < 60) {
+                    timeAgo = `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+                } else {
+                    const mins = diffMins % 60;
+                    timeAgo = `${diffHours}h ${mins}m ago`;
+                }
+                
+                backupText.textContent = `🕐 Last backup: ${timeAgo}`;
+                document.getElementById('backup-status').style.display = 'block';
+            } else {
+                backupText.textContent = '🕐 No backups yet';
+                document.getElementById('backup-status').style.display = 'block';
+            }
+        }
+    } catch (err) {
+        // Silently fail if not in server mode
+        document.getElementById('backup-status').style.display = 'none';
+    }
+}
+
 // Init
 let importMode = false;
 
@@ -400,6 +437,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (sessionStorage.getItem('usingDefaultCredentials') === 'true') {
         document.getElementById('warning-message').style.display = 'block';
     }
+    
+    // Update backup status
+    updateBackupStatus();
+    setInterval(updateBackupStatus, 60000); // Update every minute
 
     // Event listeners
     document.getElementById('printer-power').addEventListener('input', handleGlobalChange);
