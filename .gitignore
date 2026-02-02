@@ -1,5 +1,7 @@
 # Data files (but keep example)
 data/data.json
+data/data.json.import-backup-*
+data/data.json.auto-backup-*
 
 # Node modules
 node_modules/

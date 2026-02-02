@@ -117,6 +117,28 @@ app.get('/api/data', requireAuth, (req, res) => {
 
 app.post('/api/data', requireAuth, (req, res) => {
   try {
+    // Backup existing data before import/save
+    if (fs.existsSync(DATA_FILE)) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const backupFile = `${DATA_FILE}.import-backup-${timestamp}`;
+      fs.copyFileSync(DATA_FILE, backupFile);
+      console.log(`✓ Import backup created: ${backupFile}`);
+      
+      // Keep only last 10 import backups
+      const backupFiles = fs.readdirSync(path.dirname(DATA_FILE))
+        .filter(f => f.startsWith('data.json.import-backup-'))
+        .map(f => path.join(path.dirname(DATA_FILE), f))
+        .sort()
+        .reverse();
+      
+      if (backupFiles.length > 10) {
+        backupFiles.slice(10).forEach(f => {
+          fs.unlinkSync(f);
+          console.log(`✓ Removed old import backup: ${path.basename(f)}`);
+        });
+      }
+    }
+    
     fs.writeFileSync(DATA_FILE, JSON.stringify(req.body, null, 2));
     res.sendStatus(200);
   } catch (err) {
@@ -136,3 +158,37 @@ app.use(requireAuth, express.static('.'));
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Automatic periodic backup every 6 hours
+function createAutoBackup() {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const backupFile = `${DATA_FILE}.auto-backup-${timestamp}`;
+      fs.copyFileSync(DATA_FILE, backupFile);
+      console.log(`✓ Auto backup created: ${backupFile}`);
+      
+      // Keep only last 5 auto backups
+      const backupFiles = fs.readdirSync(path.dirname(DATA_FILE))
+        .filter(f => f.startsWith('data.json.auto-backup-'))
+        .map(f => path.join(path.dirname(DATA_FILE), f))
+        .sort()
+        .reverse();
+      
+      if (backupFiles.length > 5) {
+        backupFiles.slice(5).forEach(f => {
+          fs.unlinkSync(f);
+          console.log(`✓ Removed old auto backup: ${path.basename(f)}`);
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Error creating auto backup:', err);
+  }
+}
+
+// Create initial backup on startup
+creatеAutoBackup();
+
+// Schedule periodic backups every 6 hours (21600000 ms)
+setInterval(createAutoBackup, 6 * 60 * 60 * 1000);
