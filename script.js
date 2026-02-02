@@ -172,7 +172,7 @@ function renderTable() {
             </td>
             <td><input type="text" class="input-name" data-field="name" value="${job.name}"></td>
             <td class="material-cell">
-                <select class="input-material" data-field="material" value="${job.material}" style="${isMaterialPreset(job.material) || !job.material ? 'display: inline-block;' : 'display: none;'}">
+                <select class="input-material ${isMaterialPreset(job.material) ? 'material-preset' : ''}" data-field="material" value="${job.material}" style="${isMaterialPreset(job.material) || !job.material ? 'display: inline-block;' : 'display: none;'}">
                     <option value="">Custom...</option>
                     <option value="pla" ${job.material === 'pla' ? 'selected' : ''}>PLA</option>
                     <option value="abs" ${job.material === 'abs' ? 'selected' : ''}>ABS</option>
@@ -182,7 +182,7 @@ function renderTable() {
                     <option value="asa" ${job.material === 'asa' ? 'selected' : ''}>ASA</option>
                     <option value="pc" ${job.material === 'pc' ? 'selected' : ''}>PC</option>
                 </select>
-                <input type="text" class="input-material-custom" data-field="material" value="${job.material}" placeholder="Custom material" style="${!isMaterialPreset(job.material) && job.material ? 'display: inline-block;' : 'display: none;'}">
+                <input type="text" class="input-material-custom material-custom" data-field="material" value="${job.material}" placeholder="Custom material" style="${!isMaterialPreset(job.material) && job.material ? 'display: inline-block;' : 'display: none;'}">
             </td>
             <td><input type="number" class="input-price" data-field="priceKg" value="${job.priceKg}"></td>
             <td><input type="number" class="input-weight" data-field="weightG" value="${job.weightG}"></td>
@@ -259,7 +259,10 @@ function handleTableChange(event) {
                 if (isMaterialPreset(value)) {
                     materialSelect.value = value.toLowerCase();
                     materialSelect.style.display = 'inline-block';
+                    materialSelect.classList.add('material-preset');
                     customInput.style.display = 'none';
+                } else {
+                    materialSelect.classList.remove('material-preset');
                 }
             }
             
