@@ -28,6 +28,10 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 - **Custom Density Override**: Adjust material density per job with visual indicators
 - **Color-Coded Materials**: Green for preset materials, orange for custom materials
 - **Customizable Currency**: Set your own currency symbol (defaults to 🦁)
+- **Automatic Backups**: Server mode creates automatic backups every 6 hours (keeps last 5)
+- **Import Protection**: Creates backup before importing JSON data (keeps last 10)
+- **Smart Backup**: Skips backup if imported data is identical to existing data
+- **Backup Status Display**: Shows time since last backup in the UI
 - **JSON Export/Import**: Backup and share your pricing data
 - **Mobile-Friendly**: Responsive design for phone and PC
 - **Privacy-First**: Local mode keeps all data on your device; server mode uses secure session storage
@@ -80,6 +84,15 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 3. Open http://localhost:8080 in your browser
 
 **Data Persistence**: In server mode, data is stored in `data/data.json` on your host. Mount the data directory with `-v ./data:/app/data` to persist data across container restarts and share across devices.
+
+**Automatic Backups**: Server mode includes two backup systems:
+- **Auto Backups**: Created every 6 hours automatically (keeps last 5)
+  - Format: `data.json.auto-backup-YYYY-MM-DDTHH-MM`
+- **Import Backups**: Created before importing JSON data (keeps last 10)
+  - Format: `data.json.import-backup-YYYY-MM-DDTHH-MM`
+  - Skips backup if imported data is identical to existing data
+- All backups are stored in the mounted `data/` folder
+- Backup status shown in UI with time since last backup
 
 ## Usage Guide
 
