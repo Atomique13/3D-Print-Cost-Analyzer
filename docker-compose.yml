@@ -1,11 +1,11 @@
 services:
   3d-print-analyzer:
-    image: 3d-print-cost-analyzer:local
+    image: ghcr.io/atomique13/3d-print-cost-analyzer:latest
     ports:
       - "8080:80"
     volumes:
       # Mount data directory for persistent storage across devices
       - ./data:/app/data
     environment:
-      - AUTH_USERNAME=admin
-      - AUTH_PASSWORD=admin
+      - AUTH_USERNAME=your_username
+      - AUTH_PASSWORD=your_secure_password

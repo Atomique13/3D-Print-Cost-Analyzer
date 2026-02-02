@@ -83,6 +83,27 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 2. Run: `docker run -p 8080:80 -v ./data:/app/data ghcr.io/atomique13/3d-print-cost-analyzer:latest`
 3. Open http://localhost:8080 in your browser
 
+**Or use Docker Compose (recommended):**
+
+Create a `docker-compose.yml` file:
+```yaml
+services:
+  3d-print-analyzer:
+    image: ghcr.io/atomique13/3d-print-cost-analyzer:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - AUTH_USERNAME: your_username
+      - AUTH_PASSWORD: your_secure_password
+```
+
+Then run:
+```bash
+docker-compose up -d
+```
+
 **Data Persistence**: In server mode, data is stored in `data/data.json` on your host. Mount the data directory with `-v ./data:/app/data` to persist data across container restarts and share across devices.
 
 **Automatic Backups**: Server mode includes two backup systems:
