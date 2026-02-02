@@ -160,6 +160,7 @@ async function loadData() {
 function renderGlobalSettings() {
     document.getElementById('printer-power').value = globalSettings.printerPower;
     document.getElementById('electricity-price').value = globalSettings.electricityPrice;
+    document.getElementById('currency-symbol').value = globalSettings.currencySymbol;
 }
 
 function renderTable() {
@@ -178,7 +179,20 @@ function renderTable() {
                 <button class="action-btn clear-btn" title="Clear">🧹</button>
             </td>
             <td><input type="text" class="input-name" data-field="name" value="${job.name}"></td>
-            <td><input type="text" class="input-material" data-field="material" value="${job.material}"></td>
+            <td class="material-cell">
+                <select class="input-material" data-field="material" value="${job.material}">
+                    <option value="">Custom...</option>
+                    <option value="pla" ${job.material === 'pla' ? 'selected' : ''}>PLA</option>
+                    <option value="abs" ${job.material === 'abs' ? 'selected' : ''}>ABS</option>
+                    <option value="petg" ${job.material === 'petg' ? 'selected' : ''}>PETG</option>
+                    <option value="tpu" ${job.material === 'tpu' ? 'selected' : ''}>TPU</option>
+                    <option value="pa" ${job.material === 'pa' ? 'selected' : ''}>PA</option>
+                    <option value="asa" ${job.material === 'asa' ? 'selected' : ''}>ASA</option>
+                    <option value="pc" ${job.material === 'pc' ? 'selected' : ''}>PC</option>
+                </select>
+                <button class="material-edit-btn" title="Custom material">⚙️</button>
+                <input type="text" class="input-material-custom" data-field="material" value="${job.material}" placeholder="Custom material" style="display: none;">
+            </td>
             <td><input type="number" class="input-price" data-field="priceKg" value="${job.priceKg}"></td>
             <td><input type="number" class="input-weight" data-field="weightG" value="${job.weightG}"></td>
             <td><input type="text" class="input-time" data-field="printTime" value="${job.printTime}" placeholder="H:MM" maxlength="10"></td>
@@ -201,13 +215,15 @@ function renderTable() {
 function handleGlobalChange() {
     globalSettings.printerPower = parseFloat(document.getElementById('printer-power').value) || 0;
     globalSettings.electricityPrice = parseFloat(document.getElementById('electricity-price').value) || 0;
+    const currencyInput = document.getElementById('currency-symbol').value.trim();
+    globalSettings.currencySymbol = currencyInput || '🦁';
     saveData();
     renderTable();
 }
 
 function handleTableChange(event) {
     const target = event.target;
-    if (target.tagName === 'INPUT' && target.hasAttribute('data-field')) {
+    if ((target.tagName === 'INPUT' || target.tagName === 'SELECT') && target.hasAttribute('data-field')) {
         const row = target.closest('tr');
         const jobId = parseInt(row.getAttribute('data-job-id'));
         const field = target.getAttribute('data-field');
@@ -268,7 +284,17 @@ function handleTableChange(event) {
 
 function handleActions(event) {
     const target = event.target;
-    if (target.classList.contains('density-edit-btn')) {
+    if (target.classList.contains('material-edit-btn')) {
+        const cell = target.closest('td');
+        const materialSelect = cell.querySelector('.input-material');
+        const customInput = cell.querySelector('.input-material-custom');
+        const isInputVisible = customInput.style.display !== 'none';
+        materialSelect.style.display = isInputVisible ? 'inline-block' : 'none';
+        customInput.style.display = isInputVisible ? 'none' : 'inline-block';
+        if (!isInputVisible) {
+            customInput.focus();
+        }
+    } else if (target.classList.contains('density-edit-btn')) {
         const cell = target.closest('td');
         const densityInput = cell.querySelector('.input-density');
         const isVisible = densityInput.style.display !== 'none';
@@ -360,9 +386,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderGlobalSettings();
     renderTable();
 
+    // Show warning if using default credentials
+    if (sessionStorage.getItem('usingDefaultCredentials') === 'true') {
+        document.getElementById('warning-message').style.display = 'block';
+    }
+
     // Event listeners
     document.getElementById('printer-power').addEventListener('input', handleGlobalChange);
     document.getElementById('electricity-price').addEventListener('input', handleGlobalChange);
+    document.getElementById('currency-symbol').addEventListener('input', handleGlobalChange);
 
     document.getElementById('table-body').addEventListener('input', handleTableChange);
     document.getElementById('table-body').addEventListener('blur', handleTableChange, true);
