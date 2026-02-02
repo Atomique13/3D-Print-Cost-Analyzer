@@ -8,16 +8,19 @@
 </head>
 <body>
     <h1>3D Print Cost Analyzer</h1>
+    <div id="warning-message" style="display: none; background-color: #ff9800; color: #000; padding: 12px; border-radius: 5px; margin-bottom: 20px; font-weight: bold; text-align: center;">⚠️ Using default credentials! Please change password!!!</div>
     <div id="error-message" style="color: red; background: #2a2a2a; padding: 10px; border-radius: 5px; display: none; margin-bottom: 20px;"></div>
     
     <div id="global-settings">
         <h2>Global Settings</h2>
         <label>Printer Power Consumption (W): <input type="number" id="printer-power"></label>
         <label>Electricity Price per kWh: <input type="number" id="electricity-price"></label>
+        <label>Currency Symbol: <input type="text" id="currency-symbol" maxlength="10" placeholder="🦁"></label>
     </div>
     
     <div id="legend">
         <strong>Material Density (g/cm³):</strong> PLA: 1.24 | ABS: 1.04 | PETG: 1.27 | TPU: 1.21 | PA: 1.14 | ASA: 1.07 | PC: 1.20 | Unknown: 1.24 (PLA default)
+        <br><strong style="color: #4caf50;">Green</strong> = Preset material | <strong style="color: #ff9800;">Orange</strong> = Custom density | <strong style="color: #2196f3;">Blue</strong> = Unknown material (PLA default)
     </div>
     
     <div id="actions">

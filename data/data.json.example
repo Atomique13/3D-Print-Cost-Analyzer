@@ -1,0 +1,26 @@
+{
+  "globalSettings": {
+    "printerPower": 100,
+    "electricityPrice": 0.12,
+    "currencySymbol": "🦁"
+  },
+  "jobs": [
+    {
+      "id": 1,
+      "name": "Sample Part - PLA",
+      "material": "pla",
+      "priceKg": 50,
+      "weightG": 150,
+      "printTime": "2:30"
+    },
+    {
+      "id": 2,
+      "name": "Sample Part - ABS",
+      "material": "abs",
+      "priceKg": 80,
+      "weightG": 75,
+      "printTime": "1:45"
+    }
+  ],
+  "nextId": 3
+}

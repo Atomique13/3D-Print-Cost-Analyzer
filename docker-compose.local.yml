@@ -9,3 +9,4 @@ services:
     environment:
       - AUTH_USERNAME=admin
       - AUTH_PASSWORD=admin
+      - ALLOW_DEFAULT_CREDENTIALS=true

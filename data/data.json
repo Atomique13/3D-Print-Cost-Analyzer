@@ -2,7 +2,7 @@
   "globalSettings": {
     "printerPower": 100,
     "electricityPrice": 0.12,
-    "currencySymbol": "🦁"
+    "currencySymbol": "5"
   },
   "jobs": [
     {
@@ -12,7 +12,7 @@
       "priceKg": 50,
       "weightG": 123,
       "printTime": "0:05",
-      "customDensity": 2.99
+      "customDensity": null
     },
     {
       "id": 5,
@@ -22,7 +22,7 @@
       "weightG": 7,
       "printTime": "5:00",
       "density": 2.98,
-      "customDensity": 2.99
+      "customDensity": null
     },
     {
       "id": 6,
@@ -32,7 +32,7 @@
       "weightG": 7,
       "printTime": "5:00",
       "density": 2.98,
-      "customDensity": 2.51
+      "customDensity": null
     },
     {
       "id": 7,
@@ -41,7 +41,7 @@
       "priceKg": 7,
       "weightG": 2,
       "printTime": "5:00",
-      "customDensity": 2.99
+      "customDensity": null
     },
     {
       "id": 8,
@@ -50,8 +50,33 @@
       "priceKg": 5,
       "weightG": 3,
       "printTime": "0:00",
-      "customDensity": 2.92
+      "customDensity": null
+    },
+    {
+      "id": 9,
+      "name": "sdad",
+      "material": "masa",
+      "priceKg": 0,
+      "weightG": 5,
+      "printTime": "0:00"
+    },
+    {
+      "id": 10,
+      "name": "sdad",
+      "material": "abs",
+      "priceKg": 0,
+      "weightG": 5,
+      "printTime": "0:00"
+    },
+    {
+      "id": 11,
+      "name": "sdad",
+      "material": "masa",
+      "priceKg": 0,
+      "weightG": 5,
+      "printTime": "0:00",
+      "customDensity": 5
     }
   ],
-  "nextId": 9
+  "nextId": 12
 }

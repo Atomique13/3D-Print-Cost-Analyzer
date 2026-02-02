@@ -1,6 +1,5 @@
-# Data files
-data/
-data.json
+# Data files (but keep example)
+data/data.json
 
 # Node modules
 node_modules/

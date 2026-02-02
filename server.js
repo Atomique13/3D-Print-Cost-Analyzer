@@ -2,18 +2,67 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const session = require('express-session');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 80;
 const DATA_FILE = 'data/data.json';
+const DATA_FILE_EXAMPLE = 'data/data.json.example';
 
+// Ensure data directory exists and initialize with example if needed
+function initializeDataFile() {
+  const dataDir = path.dirname(DATA_FILE);
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+  
+  if (!fs.existsSync(DATA_FILE)) {
+    if (fs.existsSync(DATA_FILE_EXAMPLE)) {
+      fs.copyFileSync(DATA_FILE_EXAMPLE, DATA_FILE);
+      console.log('✓ Initialized data.json from example');
+    } else {
+      // Fallback: create minimal structure
+      const defaultData = {
+        globalSettings: { printerPower: 100, electricityPrice: 0.12, currencySymbol: '🦁' },
+        jobs: [],
+        nextId: 1
+      };
+      fs.writeFileSync(DATA_FILE, JSON.stringify(defaultData, null, 2));
+      console.log('✓ Created default data.json');
+    }
+  }
+}
+
+initializeDataFile();
 // Default credentials (use environment variables for production)
 const AUTH_USERNAME = process.env.AUTH_USERNAME || 'admin';
 const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'admin';
 
+// Safety checks
+if (!AUTH_PASSWORD || AUTH_PASSWORD.trim() === '') {
+  console.error('\n⛔ SECURITY ERROR: Password cannot be empty');
+  console.error('Set AUTH_PASSWORD environment variable with a non-empty value');
+  process.exit(1);
+}
+
+if ((AUTH_USERNAME === 'admin' && AUTH_PASSWORD === 'admin') && !process.env.ALLOW_DEFAULT_CREDENTIALS) {
+  console.error('\n⛔ SECURITY ERROR: Using default credentials (admin/admin)');
+  console.error('Set custom AUTH_USERNAME and AUTH_PASSWORD environment variables');
+  console.error('Example: docker-compose up');
+  console.error('Or set ALLOW_DEFAULT_CREDENTIALS=true to override (NOT recommended)\n');
+  process.exit(1);
+}
+
+// Generate secure session secret if not provided or is placeholder
+let SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET || SESSION_SECRET === 'change-this-secret-key' || SESSION_SECRET === 'change-this-in-production') {
+  SESSION_SECRET = crypto.randomBytes(32).toString('hex');
+  console.log('Generated random SESSION_SECRET for this session');
+}
+
 app.use(express.json());
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'change-this-secret-key',
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
