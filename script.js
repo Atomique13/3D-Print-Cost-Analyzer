@@ -37,11 +37,15 @@ function validateTime(timeStr) {
 function formatTime(timeStr) {
     const parts = timeStr.split(':');
     if (parts.length === 2) {
-        const h = parseInt(parts[0]) || 0;
-        const m = parseInt(parts[1]) || 0;
+        let h = parseInt(parts[0]) || 0;
+        let m = parseInt(parts[1]) || 0;
+        // Limit minutes to 59
+        if (m > 59) m = 59;
         return `${h}:${m.toString().padStart(2, '0')}`;
     }
-    return '0:00';
+    // If no colon, assume it's all hours
+    const num = parseInt(timeStr) || 0;
+    return `${num}:00`;
 }
 
 // Calculations
@@ -148,14 +152,14 @@ function renderTable() {
             <td><input type="text" class="input-material" data-field="material" value="${job.material}"></td>
             <td><input type="number" class="input-price" data-field="priceKg" value="${job.priceKg}"></td>
             <td><input type="number" class="input-weight" data-field="weightG" value="${job.weightG}"></td>
-            <td><input type="text" class="input-time" data-field="printTime" value="${job.printTime}" placeholder="H:MM"></td>
-            <td>${calc.timeMinutes}</td>
-            <td>${calc.timeHours.toFixed(1)}</td>
-            <td>${calc.filamentLength}</td>
-            <td>${calc.materialPrice} ${globalSettings.currencySymbol}</td>
-            <td>${calc.electricityCost} ${globalSettings.currencySymbol}</td>
-            <td>${calc.totalCost} ${globalSettings.currencySymbol}</td>
-            <td>${calc.sellingPrice} ${globalSettings.currencySymbol}</td>
+            <td><input type="text" class="input-time" data-field="printTime" value="${job.printTime}" placeholder="H:MM" maxlength="10"></td>
+            <td>${calc.timeMinutes || ''}</td>
+            <td>${calc.timeHours ? calc.timeHours.toFixed(1) : ''}</td>
+            <td>${calc.filamentLength || ''}</td>
+            <td>${calc.materialPrice ? `${calc.materialPrice} ${globalSettings.currencySymbol}` : ''}</td>
+            <td>${calc.electricityCost ? `${calc.electricityCost} ${globalSettings.currencySymbol}` : ''}</td>
+            <td>${calc.totalCost ? `${calc.totalCost} ${globalSettings.currencySymbol}` : ''}</td>
+            <td>${calc.sellingPrice ? `${calc.sellingPrice} ${globalSettings.currencySymbol}` : ''}</td>
         `;
 
         tbody.appendChild(row);
@@ -180,10 +184,13 @@ function handleTableChange(event) {
 
         if (field === 'priceKg' || field === 'weightG') {
             value = roundup(value, 1);
-            target.value = value; // Update input to show rounded value
-        } else if (field === 'printTime') {
-            value = formatTime(value);
             target.value = value;
+        } else if (field === 'printTime') {
+            // Format on blur only to avoid interfering with typing
+            if (event.type === 'blur' || event.type === 'change') {
+                value = formatTime(value);
+                target.value = value;
+            }
         }
 
         const job = jobs.find(j => j.id === jobId);
@@ -193,13 +200,13 @@ function handleTableChange(event) {
             // Update calculated fields in the row
             const calc = calculateJob(job);
             const tds = row.querySelectorAll('td');
-            tds[6].textContent = calc.timeMinutes;
-            tds[7].textContent = calc.timeHours.toFixed(1);
-            tds[8].textContent = calc.filamentLength;
-            tds[9].textContent = `${calc.materialPrice} ${globalSettings.currencySymbol}`;
-            tds[10].textContent = `${calc.electricityCost} ${globalSettings.currencySymbol}`;
-            tds[11].textContent = `${calc.totalCost} ${globalSettings.currencySymbol}`;
-            tds[12].textContent = `${calc.sellingPrice} ${globalSettings.currencySymbol}`;
+            tds[6].textContent = calc.timeMinutes || '';
+            tds[7].textContent = calc.timeHours ? calc.timeHours.toFixed(1) : '';
+            tds[8].textContent = calc.filamentLength || '';
+            tds[9].textContent = calc.materialPrice ? `${calc.materialPrice} ${globalSettings.currencySymbol}` : '';
+            tds[10].textContent = calc.electricityCost ? `${calc.electricityCost} ${globalSettings.currencySymbol}` : '';
+            tds[11].textContent = calc.totalCost ? `${calc.totalCost} ${globalSettings.currencySymbol}` : '';
+            tds[12].textContent = calc.sellingPrice ? `${calc.sellingPrice} ${globalSettings.currencySymbol}` : '';
         }
     }
 }
@@ -295,6 +302,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('electricity-price').addEventListener('input', handleGlobalChange);
 
     document.getElementById('table-body').addEventListener('input', handleTableChange);
+    document.getElementById('table-body').addEventListener('blur', handleTableChange, true);
     document.getElementById('table-body').addEventListener('click', handleActions);
 
     document.getElementById('add-row').addEventListener('click', handleAddRow);

@@ -1,0 +1,34 @@
+{
+  "globalSettings": {
+    "printerPower": 100,
+    "electricityPrice": 0.12,
+    "currencySymbol": "🦁"
+  },
+  "jobs": [
+    {
+      "id": 4,
+      "name": "test",
+      "material": "pla",
+      "priceKg": 50,
+      "weightG": 123,
+      "printTime": "0:05"
+    },
+    {
+      "id": 5,
+      "name": "",
+      "material": "",
+      "priceKg": 0,
+      "weightG": 0,
+      "printTime": "0:00"
+    },
+    {
+      "id": 6,
+      "name": "",
+      "material": "",
+      "priceKg": 0,
+      "weightG": 0,
+      "printTime": "0:00"
+    }
+  ],
+  "nextId": 7
+}
