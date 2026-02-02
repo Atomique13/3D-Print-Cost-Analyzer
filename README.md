@@ -38,7 +38,7 @@ A sleek, local web app for 3D printing enthusiasts and businesses. Built with va
 1. Run: `docker-compose up`
 2. Open http://localhost:8080 in your browser
 
-**Data Persistence**: Data is stored in `data.json` on your host machine. Mount this file to share data across multiple devices or container restarts.
+**Data Persistence**: Data is stored in the `data/data.json` file on your host machine. Mount this directory to share data across multiple devices or container restarts.
 
 ## Usage Guide
 

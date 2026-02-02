@@ -6,5 +6,5 @@ services:
     ports:
       - "8080:80"
     volumes:
-      # Mount data.json for persistent storage across devices
-      - ./data.json:/app/data.json
+      # Mount data directory for persistent storage across devices
+      - ./data:/app/data
