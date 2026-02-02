@@ -86,4 +86,4 @@ MIT License – free to use and modify.
 
 ---
 
-Built for the 3D printing community
+Built for the 3D printing community with a lot of assistance from 🤖 GitHub Copilot.
