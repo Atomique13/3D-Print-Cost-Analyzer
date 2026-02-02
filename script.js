@@ -256,8 +256,8 @@ function handleImport() {
 // Init
 let importMode = false;
 
-document.addEventListener('DOMContentLoaded', () => {
-    loadData();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadData();
     renderGlobalSettings();
     renderTable();
 
