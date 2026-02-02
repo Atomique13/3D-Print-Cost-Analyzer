@@ -8,22 +8,22 @@ let globalSettings = {
 let jobs = [];
 let nextId = 1;
 
-// Utility functions
-function roundup(num, digits) {
-    const factor = Math.pow(10, digits);
-    return Math.ceil(num * factor) / factor;
-}
-
-function ceiling(num, sig) {
-    return Math.ceil(num / sig) * sig;
-}
-
-function parseTime(timeStr) {
+function validateTime(timeStr) {
     const parts = timeStr.split(':');
-    if (parts.length !== 2) return { hours: 0, minutes: 0 };
-    const h = parseInt(parts[0]) || 0;
-    const m = parseInt(parts[1]) || 0;
-    return { hours: h, minutes: m };
+    if (parts.length !== 2) return false;
+    const h = parseInt(parts[0]);
+    const m = parseInt(parts[1]);
+    return !isNaN(h) && !isNaN(m) && h >= 0 && h < 24 && m >= 0 && m < 60;
+}
+
+function formatTime(timeStr) {
+    const parts = timeStr.split(':');
+    if (parts.length === 2) {
+        const h = parseInt(parts[0]) || 0;
+        const m = parseInt(parts[1]) || 0;
+        return `${h}:${m.toString().padStart(2, '0')}`;
+    }
+    return '0:00';
 }
 
 // Calculations
@@ -82,6 +82,7 @@ async function loadData() {
             if (globalSettings.currencySymbol !== '🦁') {
                 globalSettings.currencySymbol = '🦁';
             }
+            document.getElementById('error-message').style.display = 'none';
         } else {
             throw new Error('Load failed');
         }
@@ -99,6 +100,8 @@ async function loadData() {
                 globalSettings.currencySymbol = '🦁';
             }
         }
+        document.getElementById('error-message').textContent = 'Database not accessible. Data will not persist.';
+        document.getElementById('error-message').style.display = 'block';
     }
 }
 
@@ -155,7 +158,15 @@ function handleTableChange(event) {
         const row = target.closest('tr');
         const jobId = parseInt(row.getAttribute('data-job-id'));
         const field = target.getAttribute('data-field');
-        const value = target.type === 'number' ? parseFloat(target.value) || 0 : target.value;
+        let value = target.type === 'number' ? parseFloat(target.value) || 0 : target.value;
+
+        if (field === 'priceKg' || field === 'weightG') {
+            value = roundup(value, 1);
+            target.value = value; // Update input to show rounded value
+        } else if (field === 'printTime') {
+            value = formatTime(value);
+            target.value = value;
+        }
 
         const job = jobs.find(j => j.id === jobId);
         if (job) {
