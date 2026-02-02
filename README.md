@@ -115,7 +115,7 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 - Add Row: New job entry
 - Duplicate: Copy a row
 - Delete: Remove row (with confirmation)
-- Clear: Reset row inputs
+- Clear: Reset row inputs (with confirmation)
 - Export JSON: Download data
 - Import JSON: Load saved data
 
