@@ -8,6 +8,24 @@ let globalSettings = {
 let jobs = [];
 let nextId = 1;
 
+// Utility functions
+function roundup(num, digits) {
+    const factor = Math.pow(10, digits);
+    return Math.ceil(num * factor) / factor;
+}
+
+function ceiling(num, sig) {
+    return Math.ceil(num / sig) * sig;
+}
+
+function parseTime(timeStr) {
+    const parts = timeStr.split(':');
+    if (parts.length !== 2) return { hours: 0, minutes: 0 };
+    const h = parseInt(parts[0]) || 0;
+    const m = parseInt(parts[1]) || 0;
+    return { hours: h, minutes: m };
+}
+
 function validateTime(timeStr) {
     const parts = timeStr.split(':');
     if (parts.length !== 2) return false;
