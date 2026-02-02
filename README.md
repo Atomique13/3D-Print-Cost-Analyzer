@@ -2,21 +2,36 @@
 
 > Calculate 3D print costs and profits with real measurements – no guesswork!
 
-A sleek, local web app for 3D printing enthusiasts and businesses. Built with vanilla HTML, CSS, and JavaScript – runs entirely in your browser, no installation or server needed.
+A powerful web app for 3D printing enthusiasts and businesses. Built with vanilla HTML, CSS, and JavaScript – runs both locally in your browser and on a server for multi-device synchronization.
+
+## Two Deployment Modes
+
+### 1. Local Mode (Browser-Based)
+- **No server required**: Open `index.html` directly in your browser
+- **Browser Storage**: Data persists in browser localStorage
+- **Single Device**: Perfect for quick calculations and testing
+- **Instant**: Zero setup, immediate use
+
+### 2. Server Mode (Docker/Express.js)
+- **Multi-Device**: Access from any device on your network
+- **Server Storage**: Data saved to `data/data.json` on the server
+- **Authentication**: Simple login system to protect your pricing data
+- **Docker Ready**: Pre-configured containerization for easy deployment
 
 ## Features
 
 - **Live Spreadsheet Interface**: Inline editing with instant calculations
 - **Real-Time Updates**: Costs update as you type
+- **Material Density Lookup**: Preset densities for common filaments (PLA, ABS, PETG, TPU, PA, ASA, PC)
+- **Custom Density Override**: Adjust material density per job with visual indicators
 - **Romanian Currency**: Prices in 🦁 (with lion emoji flair)
-- **Local Storage**: Your data persists between sessions
 - **JSON Export/Import**: Backup and share your pricing data
 - **Mobile-Friendly**: Responsive design for phone and PC
-- **Privacy-First**: All data stays on your device
+- **Privacy-First**: Local mode keeps all data on your device; server mode uses secure session storage
 
 ### Per-Job Calculations
 - Time parsing and conversion
-- Filament length (PLA density: 2.98 g/m)
+- Filament length (using material-specific densities)
 - Material and electricity costs
 - Profit estimation with smart formula
 
@@ -28,17 +43,21 @@ A sleek, local web app for 3D printing enthusiasts and businesses. Built with va
 3. Set printer power and electricity price
 4. Add jobs and fill in details
 5. View calculated costs and profits
+6. Data is saved in your browser's localStorage
 
-### Docker
-1. Pull the image: `docker pull ghcr.io/atomique13/3d-print-cost-analyzer:latest`
-2. Run: `docker run -p 8080:80 ghcr.io/atomique13/3d-print-cost-analyzer:latest`
+### Docker (Server Mode)
+1. Build: `docker build -t 3d-print-cost-analyzer:local .`
+2. Run: `docker-compose up` (or `.\test-local.ps1` on Windows)
+3. Open http://localhost:8080 in your browser
+4. Login with default credentials: `admin` / `admin`
+5. Data persists in `data/data.json` on your host machine
+
+### Docker Hub
+1. Pull: `docker pull ghcr.io/atomique13/3d-print-cost-analyzer:latest`
+2. Run: `docker run -p 8080:80 -v ./data:/app/data ghcr.io/atomique13/3d-print-cost-analyzer:latest`
 3. Open http://localhost:8080 in your browser
 
-### Docker Compose
-1. Run: `docker-compose up`
-2. Open http://localhost:8080 in your browser
-
-**Data Persistence**: Data is stored in the `data/data.json` file on your host machine. Mount this directory to share data across multiple devices or container restarts.
+**Data Persistence**: In server mode, data is stored in `data/data.json` on your host. Mount the data directory with `-v ./data:/app/data` to persist data across container restarts and share across devices.
 
 ## Usage Guide
 
@@ -48,10 +67,17 @@ A sleek, local web app for 3D printing enthusiasts and businesses. Built with va
 
 ### Job Inputs
 - **Name**: Job identifier
-- **Material**: Filament type (PLA for length calc)
+- **Material**: Filament type (uses preset density if available)
 - **Price/kg**: Filament cost
 - **Weight (g)**: Actual printed weight
 - **Print Time**: Hours:Minutes (e.g., 2:30)
+
+### Material Density
+- **Color Coding**: 
+  - 🟢 Green: Preset material from library
+  - 🟠 Orange: Custom density override
+  - 🔵 Blue: Unknown material using PLA default
+- Click ⚙️ to customize density for any job
 
 ### Actions
 - Add Row: New job entry
@@ -61,39 +87,12 @@ A sleek, local web app for 3D printing enthusiasts and businesses. Built with va
 - Export JSON: Download data
 - Import JSON: Load saved data
 
-## Formulas
-
-All calculations use Excel-compatible ROUNDUP/CEILING:
-
-- **Time Minutes** = `hours * 60 + minutes`
-- **Time Hours** = `time_minutes / 60`
-- **Filament Length (PLA)** = `ROUNDUP(weight_g / 2.98, 1)` meters
-- **Material Price** = `ROUNDUP((price_kg / 1000) * weight_g, 1)` 🦁
-- **Electricity Cost** = `ROUNDUP((power_w / 1000) * time_hours * price_kwh, 1)` 🦁
-- **Total Cost** = `ROUNDUP(material_price + electricity_cost, 1)` 🦁
-- **Selling Price** = `CEILING((total_cost * 3 / 5), 1) * 5` 🦁
-
-## Tech Stack
-
-- **Frontend**: HTML5, CSS3, ES6 JavaScript
-- **Storage**: Browser localStorage
-- **Styling**: Dark theme with responsive design
-- **No Dependencies**: Pure vanilla code
-
-## Compatibility
-
-- **Browsers**: Chrome, Firefox, Safari, Edge
-- **Devices**: Desktop, tablet, mobile
-- **OS**: Windows, macOS, Linux, Android, iOS
-
-## Contributing
-
-Found a bug or have a feature idea? Open an issue or submit a PR!
-
-## License
-
-MIT License – free to use and modify.
-
----
-
-Built for the 3D printing community with a lot of assistance from 🤖 GitHub Copilot.
+## Material Densities (g/cm³)
+- **PLA**: 1.24
+- **ABS**: 1.04
+- **PETG**: 1.27
+- **TPU**: 1.21
+- **PA (Nylon)**: 1.14
+- **ASA**: 1.07
+- **PC**: 1.20
+- **Unknown**: 1.24 (PLA default)
