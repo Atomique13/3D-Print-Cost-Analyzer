@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Print Pricing Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>3D Print Pricing Calculator</h1>
+    
+    <div id="global-settings">
+        <h2>Global Settings</h2>
+        <label>Printer Power Consumption (W): <input type="number" id="printer-power"></label>
+        <label>Electricity Price per kWh: <input type="number" id="electricity-price"></label>
+    </div>
+    
+    <div id="actions">
+        <button id="add-row">➕ Add Row</button>
+        <button id="export-data">📤 Export JSON</button>
+        <button id="import-data">📥 Import JSON</button>
+        <textarea id="import-textarea" placeholder="Paste JSON here" style="display:none;"></textarea>
+    </div>
+    
+    <div id="table-container">
+        <table id="pricing-table">
+            <thead>
+                <tr>
+                    <th>Actions</th>
+                    <th>Name</th>
+                    <th>Material</th>
+                    <th>Price/kg</th>
+                    <th>Weight (g)</th>
+                    <th>Print Time (H:MM)</th>
+                    <th>Time (min)</th>
+                    <th>Time (hours)</th>
+                    <th>Filament Length (m) - PLA only</th>
+                    <th>Material Price</th>
+                    <th>Electricity Cost</th>
+                    <th>Total Base Cost</th>
+                    <th>Estimated Selling Price</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
