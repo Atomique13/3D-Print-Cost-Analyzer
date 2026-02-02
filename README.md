@@ -22,12 +22,16 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 
 - **Live Spreadsheet Interface**: Inline editing with instant calculations
 - **Real-Time Updates**: Costs update as you type
+- **Material Dropdown Selector**: Quick-select from 7 preset materials or enter custom materials
+- **Smart Material Detection**: Type a preset name in custom field to auto-switch to dropdown
 - **Material Density Lookup**: Preset densities for common filaments (PLA, ABS, PETG, TPU, PA, ASA, PC)
 - **Custom Density Override**: Adjust material density per job with visual indicators
-- **Romanian Currency**: Prices in 🦁 (with lion emoji flair)
+- **Color-Coded Materials**: Green for preset materials, orange for custom materials
+- **Customizable Currency**: Set your own currency symbol (defaults to 🦁)
 - **JSON Export/Import**: Backup and share your pricing data
 - **Mobile-Friendly**: Responsive design for phone and PC
 - **Privacy-First**: Local mode keeps all data on your device; server mode uses secure session storage
+- **Secure by Default**: Blocks default credentials in production, auto-generates session secrets
 
 ### Per-Job Calculations
 - Time parsing and conversion
@@ -46,11 +50,29 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 6. Data is saved in your browser's localStorage
 
 ### Docker (Server Mode)
-1. Build: `docker build -t 3d-print-cost-analyzer:local .`
-2. Run: `docker-compose up` (or `.\test-local.ps1` on Windows)
+
+**For Production (Secure):**
+1. Edit `docker-compose.yml` to set custom credentials:
+   ```yaml
+   AUTH_USERNAME: your_username
+   AUTH_PASSWORD: your_secure_password
+   ```
+2. Run: `docker-compose up -d`
 3. Open http://localhost:8080 in your browser
-4. Login with default credentials: `admin` / `admin`
+4. Login with your custom credentials
 5. Data persists in `data/data.json` on your host machine
+
+**For Local Testing:**
+1. Run: `.\test-local.ps1` (Windows) or `docker-compose -f docker-compose.local.yml up`
+2. Uses default admin/admin credentials (allowed via ALLOW_DEFAULT_CREDENTIALS flag)
+3. Open http://localhost:8080 in your browser
+
+**Security Features:**
+- Auto-generates SESSION_SECRET if not provided
+- Blocks default admin/admin credentials in production
+- Rejects empty passwords
+- Shows warning banners when using default credentials
+- Session-based authentication protects all endpoints
 
 ### Docker Hub
 1. Pull: `docker pull ghcr.io/atomique13/3d-print-cost-analyzer:latest`
@@ -64,20 +86,30 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 ### Global Settings
 - **Printer Power (W)**: Your 3D printer's wattage
 - **Electricity Price**: Cost per kWh in your area
+- **Currency Symbol**: Customize your currency (max 10 characters, defaults to 🦁)
 
 ### Job Inputs
 - **Name**: Job identifier
-- **Material**: Filament type (uses preset density if available)
+- **Material**: Select from dropdown (PLA, ABS, PETG, TPU, PA, ASA, PC) or choose "Custom..." to enter your own
 - **Price/kg**: Filament cost
 - **Weight (g)**: Actual printed weight
 - **Print Time**: Hours:Minutes (e.g., 2:30)
 
-### Material Density
-- **Color Coding**: 
-  - 🟢 Green: Preset material from library
-  - 🟠 Orange: Custom density override
-  - 🔵 Blue: Unknown material using PLA default
-- Click ⚙️ to customize density for any job
+### Material Selector
+- **Dropdown**: Quick-select from 7 preset materials
+- **Custom Entry**: Select "Custom..." to type any material name
+- **Smart Detection**: Type "PLA" in custom field → auto-switches to dropdown
+- **Color Coding**:
+  - 🟢 Green: Preset material with known density
+  - 🟠 Orange: Custom material using default or custom density
+
+### Material Density (Filament Length)
+- **Preset Densities**: Automatic calculation for 7 common materials
+- **Custom Override**: Click ⚙️ gear button next to filament length to set custom density
+- **Color Indicators**:
+  - 🟢 Green: Using preset density from material library
+  - 🟠 Orange: Custom density override applied
+  - 🔵 Blue: Unknown material using PLA default (1.24 g/cm³)
 
 ### Actions
 - Add Row: New job entry
