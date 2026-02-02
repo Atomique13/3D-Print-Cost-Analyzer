@@ -172,7 +172,7 @@ function renderTable() {
             </td>
             <td><input type="text" class="input-name" data-field="name" value="${job.name}"></td>
             <td class="material-cell">
-                <select class="input-material" data-field="material" value="${job.material}">
+                <select class="input-material" data-field="material" value="${job.material}" style="${isMaterialPreset(job.material) || !job.material ? 'display: inline-block;' : 'display: none;'}">
                     <option value="">Custom...</option>
                     <option value="pla" ${job.material === 'pla' ? 'selected' : ''}>PLA</option>
                     <option value="abs" ${job.material === 'abs' ? 'selected' : ''}>ABS</option>
@@ -182,8 +182,7 @@ function renderTable() {
                     <option value="asa" ${job.material === 'asa' ? 'selected' : ''}>ASA</option>
                     <option value="pc" ${job.material === 'pc' ? 'selected' : ''}>PC</option>
                 </select>
-                <button class="material-edit-btn" title="Custom material">⚙️</button>
-                <input type="text" class="input-material-custom" data-field="material" value="${job.material}" placeholder="Custom material" style="display: none;">
+                <input type="text" class="input-material-custom" data-field="material" value="${job.material}" placeholder="Custom material" style="${!isMaterialPreset(job.material) && job.material ? 'display: inline-block;' : 'display: none;'}">
             </td>
             <td><input type="number" class="input-price" data-field="priceKg" value="${job.priceKg}"></td>
             <td><input type="number" class="input-weight" data-field="weightG" value="${job.weightG}"></td>
@@ -220,6 +219,19 @@ function handleTableChange(event) {
         const jobId = parseInt(row.getAttribute('data-job-id'));
         const field = target.getAttribute('data-field');
         let value = target.type === 'number' ? parseFloat(target.value) || 0 : target.value;
+        
+        // Handle material dropdown: show custom input when Custom is selected
+        if (field === 'material' && target.tagName === 'SELECT') {
+            const cell = target.closest('td');
+            const materialSelect = cell.querySelector('.input-material');
+            const customInput = cell.querySelector('.input-material-custom');
+            if (value === '') {
+                materialSelect.style.display = 'none';
+                customInput.style.display = 'inline-block';
+                customInput.focus();
+                return; // Don't update job yet, wait for custom input
+            }
+        }
 
         if (field === 'priceKg' || field === 'weightG') {
             value = roundup(value, 1);
@@ -238,6 +250,19 @@ function handleTableChange(event) {
         const job = jobs.find(j => j.id === jobId);
         if (job) {
             job[field] = value;
+            
+            // If material field changed and it's now a preset, switch back to dropdown
+            if (field === 'material') {
+                const cell = target.closest('td');
+                const materialSelect = cell.querySelector('.input-material');
+                const customInput = cell.querySelector('.input-material-custom');
+                if (isMaterialPreset(value)) {
+                    materialSelect.value = value.toLowerCase();
+                    materialSelect.style.display = 'inline-block';
+                    customInput.style.display = 'none';
+                }
+            }
+            
             saveData();
             // Update calculated fields in the row
             const calc = calculateJob(job);
@@ -276,17 +301,7 @@ function handleTableChange(event) {
 
 function handleActions(event) {
     const target = event.target;
-    if (target.classList.contains('material-edit-btn')) {
-        const cell = target.closest('td');
-        const materialSelect = cell.querySelector('.input-material');
-        const customInput = cell.querySelector('.input-material-custom');
-        const isInputVisible = customInput.style.display !== 'none';
-        materialSelect.style.display = isInputVisible ? 'inline-block' : 'none';
-        customInput.style.display = isInputVisible ? 'none' : 'inline-block';
-        if (!isInputVisible) {
-            customInput.focus();
-        }
-    } else if (target.classList.contains('density-edit-btn')) {
+    if (target.classList.contains('density-edit-btn')) {
         const cell = target.closest('td');
         const densityInput = cell.querySelector('.input-density');
         const isVisible = densityInput.style.display !== 'none';
