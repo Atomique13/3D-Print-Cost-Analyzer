@@ -237,6 +237,5 @@ function createAutoBackup() {
 // Create initial backup on startup
 createAutoBackup();
 
-// Schedule periodic backups every 1 minute (60000 ms) - FOR TESTING
-// Production: use 6 * 60 * 60 * 1000 for 6 hours
-setInterval(createAutoBackup, 60000);
+// Schedule periodic backups every 6 hours (21600000 ms)
+setInterval(createAutoBackup, 6 * 60 * 60 * 1000);
