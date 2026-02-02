@@ -55,20 +55,49 @@ function calculateJob(job) {
 }
 
 // Persistence
-function saveData() {
-    localStorage.setItem('3dPrintPricingData', JSON.stringify({ globalSettings, jobs, nextId }));
+async function saveData() {
+    try {
+        const response = await fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ globalSettings, jobs, nextId })
+        });
+        if (!response.ok) throw new Error('Save failed');
+    } catch (err) {
+        console.error('Error saving data:', err);
+        // Fallback to localStorage if API fails
+        localStorage.setItem('3dPrintPricingData', JSON.stringify({ globalSettings, jobs, nextId }));
+    }
 }
 
-function loadData() {
-    const data = localStorage.getItem('3dPrintPricingData');
-    if (data) {
-        const parsed = JSON.parse(data);
-        globalSettings = parsed.globalSettings || globalSettings;
-        jobs = parsed.jobs || [];
-        nextId = parsed.nextId || 1;
-        // Update old currency symbol
-        if (globalSettings.currencySymbol !== '🦁') {
-            globalSettings.currencySymbol = '🦁';
+async function loadData() {
+    try {
+        const response = await fetch('/api/data');
+        if (response.ok) {
+            const parsed = await response.json();
+            globalSettings = parsed.globalSettings || globalSettings;
+            jobs = parsed.jobs || [];
+            nextId = parsed.nextId || 1;
+            // Update old currency symbol
+            if (globalSettings.currencySymbol !== '🦁') {
+                globalSettings.currencySymbol = '🦁';
+            }
+        } else {
+            throw new Error('Load failed');
+        }
+    } catch (err) {
+        console.error('Error loading data:', err);
+        // Fallback to localStorage
+        const data = localStorage.getItem('3dPrintPricingData');
+        if (data) {
+            const parsed = JSON.parse(data);
+            globalSettings = parsed.globalSettings || globalSettings;
+            jobs = parsed.jobs || [];
+            nextId = parsed.nextId || 1;
+            // Update old currency symbol
+            if (globalSettings.currencySymbol !== '🦁') {
+                globalSettings.currencySymbol = '🦁';
+            }
         }
     }
 }

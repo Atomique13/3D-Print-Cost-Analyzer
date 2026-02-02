@@ -35,11 +35,10 @@ A sleek, local web app for 3D printing enthusiasts and businesses. Built with va
 3. Open http://localhost:8080 in your browser
 
 ### Docker Compose
-1. Set environment variable: `export PORT=8080` (or your preferred port)
-2. Run: `docker-compose up`
-3. Open http://localhost:$PORT in your browser
+1. Run: `docker-compose up`
+2. Open http://localhost:8080 in your browser
 
-**Note**: Data is stored in your browser's localStorage. For persistence across sessions, use the same browser. The volume mount is optional for custom data.
+**Data Persistence**: Data is stored in `data.json` on your host machine. Mount this file to share data across multiple devices or container restarts.
 
 ## Usage Guide
 

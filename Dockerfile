@@ -1,11 +1,20 @@
-# Use nginx to serve the static files
-FROM nginx:alpine
+# Use Node.js to run the Express server
+FROM node:18-alpine
 
-# Copy the app files to nginx html directory
-COPY . /usr/share/nginx/html
+# Set working directory
+WORKDIR /app
 
-# Expose port 80
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy app files
+COPY . .
+
+# Expose port
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start the server
+CMD ["npm", "start"]
