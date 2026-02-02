@@ -14,7 +14,7 @@ const MATERIAL_DENSITIES = {
     'abs': 1.04,
     'petg': 1.27,
     'tpu': 1.21,
-    'nylon': 1.14,
+    'pa': 1.14,
     'asa': 1.07,
     'pc': 1.20
 };
