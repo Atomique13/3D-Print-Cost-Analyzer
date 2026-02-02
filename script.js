@@ -129,10 +129,6 @@ async function loadData() {
             globalSettings = parsed.globalSettings || globalSettings;
             jobs = parsed.jobs || [];
             nextId = parsed.nextId || 1;
-            // Update old currency symbol
-            if (globalSettings.currencySymbol !== '🦁') {
-                globalSettings.currencySymbol = '🦁';
-            }
             document.getElementById('error-message').style.display = 'none';
         } else {
             throw new Error('Load failed');
@@ -146,10 +142,6 @@ async function loadData() {
             globalSettings = parsed.globalSettings || globalSettings;
             jobs = parsed.jobs || [];
             nextId = parsed.nextId || 1;
-            // Update old currency symbol
-            if (globalSettings.currencySymbol !== '🦁') {
-                globalSettings.currencySymbol = '🦁';
-            }
         }
         document.getElementById('error-message').textContent = 'Database not accessible. Data will not persist.';
         document.getElementById('error-message').style.display = 'block';
