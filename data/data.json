@@ -11,24 +11,47 @@
       "material": "pla",
       "priceKg": 50,
       "weightG": 123,
-      "printTime": "0:05"
+      "printTime": "0:05",
+      "customDensity": 2.99
     },
     {
       "id": 5,
-      "name": "",
-      "material": "",
-      "priceKg": 0,
-      "weightG": 0,
-      "printTime": "0:00"
+      "name": "test2",
+      "material": "pla",
+      "priceKg": 7,
+      "weightG": 7,
+      "printTime": "5:00",
+      "density": 2.98,
+      "customDensity": 2.99
     },
     {
       "id": 6,
-      "name": "",
-      "material": "",
-      "priceKg": 0,
-      "weightG": 0,
-      "printTime": "0:00"
+      "name": "abd",
+      "material": "abs",
+      "priceKg": 7,
+      "weightG": 7,
+      "printTime": "5:00",
+      "density": 2.98,
+      "customDensity": 2.51
+    },
+    {
+      "id": 7,
+      "name": "abcd2",
+      "material": "abs",
+      "priceKg": 7,
+      "weightG": 2,
+      "printTime": "5:00",
+      "customDensity": 2.99
+    },
+    {
+      "id": 8,
+      "name": "abcd23",
+      "material": "tpu",
+      "priceKg": 5,
+      "weightG": 3,
+      "printTime": "0:00",
+      "customDensity": 2.92
     }
   ],
-  "nextId": 7
+  "nextId": 9
 }

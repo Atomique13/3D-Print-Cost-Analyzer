@@ -8,6 +8,35 @@ let globalSettings = {
 let jobs = [];
 let nextId = 1;
 
+// Material density lookup (g/cm³) for 1.75mm filament
+const MATERIAL_DENSITIES = {
+    'pla': 1.24,
+    'abs': 1.04,
+    'petg': 1.27,
+    'tpu': 1.21,
+    'nylon': 1.14,
+    'asa': 1.07,
+    'pc': 1.20
+};
+
+// Calculate linear density (g/m) from material density (g/cm³)
+function getMaterialLinearDensity(materialName, customDensity = null) {
+    if (customDensity) return customDensity;
+    const filamentArea = Math.PI * Math.pow(1.75 / 2, 2) / 100; // cm²
+    const materialDensity = MATERIAL_DENSITIES[materialName.toLowerCase()] || 1.24; // default PLA
+    return roundup(materialDensity * filamentArea * 100, 2); // g/m
+}
+
+// Get material density in g/cm³
+function getMaterialDensity(materialName) {
+    return MATERIAL_DENSITIES[materialName.toLowerCase()] || 1.24; // default PLA
+}
+
+// Check if material is in preset list
+function isMaterialPreset(materialName) {
+    return materialName && MATERIAL_DENSITIES[materialName.toLowerCase()] !== undefined;
+}
+
 // Utility functions
 function roundup(num, digits) {
     const factor = Math.pow(10, digits);
@@ -55,9 +84,9 @@ function calculateJob(job) {
     const timeHours = timeMinutes / 60;
 
     let filamentLength = '';
-    if (job.material.toLowerCase() === 'pla') {
-        // Assumption: PLA filament density is 2.98 g/m (common value for 1.75mm PLA)
-        filamentLength = roundup(job.weightG / 2.98, 1);
+    const linearDensity = getMaterialLinearDensity(job.material, job.customDensity);
+    if (job.weightG > 0 && linearDensity > 0) {
+        filamentLength = roundup(job.weightG / linearDensity, 1);
     }
 
     const materialPrice = roundup((job.priceKg / 1000) * job.weightG, 1);
@@ -153,9 +182,11 @@ function renderTable() {
             <td><input type="number" class="input-price" data-field="priceKg" value="${job.priceKg}"></td>
             <td><input type="number" class="input-weight" data-field="weightG" value="${job.weightG}"></td>
             <td><input type="text" class="input-time" data-field="printTime" value="${job.printTime}" placeholder="H:MM" maxlength="10"></td>
-            <td>${calc.timeMinutes || ''}</td>
-            <td>${calc.timeHours ? calc.timeHours.toFixed(1) : ''}</td>
-            <td>${calc.filamentLength || ''}</td>
+            <td class="filament-cell">
+                <span class="filament-length ${job.customDensity ? 'custom-density' : (isMaterialPreset(job.material) ? 'preset-density' : 'default-density')}">${calc.filamentLength || ''}</span>
+                <button class="density-edit-btn" title="Material density: ${getMaterialLinearDensity(job.material, job.customDensity).toFixed(2)} g/m">⚙️</button>
+                <input type="number" class="input-density" data-field="customDensity" value="${job.customDensity || ''}" placeholder="${getMaterialDensity(job.material).toFixed(2)}" step="0.01" min="0" style="display: none;">
+            </td>
             <td>${calc.materialPrice ? `${calc.materialPrice} ${globalSettings.currencySymbol}` : ''}</td>
             <td>${calc.electricityCost ? `${calc.electricityCost} ${globalSettings.currencySymbol}` : ''}</td>
             <td>${calc.totalCost ? `${calc.totalCost} ${globalSettings.currencySymbol}` : ''}</td>
@@ -185,6 +216,9 @@ function handleTableChange(event) {
         if (field === 'priceKg' || field === 'weightG') {
             value = roundup(value, 1);
             target.value = value;
+        } else if (field === 'customDensity') {
+            value = parseFloat(value) || null;
+            if (value) target.value = value;
         } else if (field === 'printTime') {
             // Format on blur only to avoid interfering with typing
             if (event.type === 'blur' || event.type === 'change') {
@@ -200,20 +234,49 @@ function handleTableChange(event) {
             // Update calculated fields in the row
             const calc = calculateJob(job);
             const tds = row.querySelectorAll('td');
-            tds[6].textContent = calc.timeMinutes || '';
-            tds[7].textContent = calc.timeHours ? calc.timeHours.toFixed(1) : '';
-            tds[8].textContent = calc.filamentLength || '';
-            tds[9].textContent = calc.materialPrice ? `${calc.materialPrice} ${globalSettings.currencySymbol}` : '';
-            tds[10].textContent = calc.electricityCost ? `${calc.electricityCost} ${globalSettings.currencySymbol}` : '';
-            tds[11].textContent = calc.totalCost ? `${calc.totalCost} ${globalSettings.currencySymbol}` : '';
-            tds[12].textContent = calc.sellingPrice ? `${calc.sellingPrice} ${globalSettings.currencySymbol}` : '';
+            // Update filament length span inside the cell
+            const filamentSpan = tds[6].querySelector('.filament-length');
+            if (filamentSpan) {
+                filamentSpan.textContent = calc.filamentLength || '';
+                let className = 'filament-length';
+                if (job.customDensity) {
+                    className += ' custom-density';
+                } else if (isMaterialPreset(job.material)) {
+                    className += ' preset-density';
+                } else {
+                    className += ' default-density';
+                }
+                filamentSpan.className = className;
+            }
+            // Update density button tooltip and input placeholder
+            const densityBtn = tds[6].querySelector('.density-edit-btn');
+            const densityInput = tds[6].querySelector('.input-density');
+            if (densityBtn) {
+                densityBtn.title = `Material density: ${getMaterialLinearDensity(job.material, job.customDensity).toFixed(2)} g/m`;
+            }
+            if (densityInput && field === 'material') {
+                // Update placeholder when material changes
+                densityInput.placeholder = getMaterialDensity(job.material).toFixed(2);
+            }
+            tds[7].textContent = calc.materialPrice ? `${calc.materialPrice} ${globalSettings.currencySymbol}` : '';
+            tds[8].textContent = calc.electricityCost ? `${calc.electricityCost} ${globalSettings.currencySymbol}` : '';
+            tds[9].textContent = calc.totalCost ? `${calc.totalCost} ${globalSettings.currencySymbol}` : '';
+            tds[10].textContent = calc.sellingPrice ? `${calc.sellingPrice} ${globalSettings.currencySymbol}` : '';
         }
     }
 }
 
 function handleActions(event) {
     const target = event.target;
-    if (target.classList.contains('duplicate-btn')) {
+    if (target.classList.contains('density-edit-btn')) {
+        const cell = target.closest('td');
+        const densityInput = cell.querySelector('.input-density');
+        const isVisible = densityInput.style.display !== 'none';
+        densityInput.style.display = isVisible ? 'none' : 'inline-block';
+        if (!isVisible) {
+            densityInput.focus();
+        }
+    } else if (target.classList.contains('duplicate-btn')) {
         const row = target.closest('tr');
         const jobId = parseInt(row.getAttribute('data-job-id'));
         const job = jobs.find(j => j.id === jobId);
