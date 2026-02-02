@@ -125,6 +125,52 @@ app.post('/api/data', requireAuth, (req, res) => {
   }
 });
 
+// Import endpoint with backup
+app.post('/api/import', requireAuth, (req, res) => {
+  try {
+    // Check if data is different before backing up
+    let shouldBackup = true;
+    if (fs.existsSync(DATA_FILE)) {
+      const currentData = fs.readFileSync(DATA_FILE, 'utf8');
+      const newData = JSON.stringify(req.body, null, 2);
+      
+      if (currentData === newData) {
+        shouldBackup = false;
+        console.log('⏭️  Import skipped backup - data unchanged');
+      }
+    }
+    
+    // Backup existing data before import only if different
+    if (shouldBackup && fs.existsSync(DATA_FILE)) {
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}T${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+      const backupFile = `${DATA_FILE}.import-backup-${timestamp}`;
+      fs.copyFileSync(DATA_FILE, backupFile);
+      console.log(`✓ Import backup created: ${backupFile}`);
+      
+      // Keep only last 10 import backups
+      const backupFiles = fs.readdirSync(path.dirname(DATA_FILE))
+        .filter(f => f.startsWith('data.json.import-backup-'))
+        .map(f => path.join(path.dirname(DATA_FILE), f))
+        .sort()
+        .reverse();
+      
+      if (backupFiles.length > 10) {
+        backupFiles.slice(10).forEach(f => {
+          fs.unlinkSync(f);
+          console.log(`✓ Removed old import backup: ${path.basename(f)}`);
+        });
+      }
+    }
+    
+    fs.writeFileSync(DATA_FILE, JSON.stringify(req.body, null, 2));
+    res.sendStatus(200);
+  } catch (err) {
+    console.error('Error importing data:', err);
+    res.status(500).send('Error importing data');
+  }
+});
+
 // Serve login page without authentication
 app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
@@ -163,7 +209,8 @@ app.listen(PORT, () => {
 function createAutoBackup() {
   try {
     if (fs.existsSync(DATA_FILE)) {
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}T${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
       const backupFile = `${DATA_FILE}.auto-backup-${timestamp}`;
       fs.copyFileSync(DATA_FILE, backupFile);
       console.log(`✓ Auto backup created: ${backupFile}`);
@@ -190,5 +237,6 @@ function createAutoBackup() {
 // Create initial backup on startup
 createAutoBackup();
 
-// Schedule periodic backups every 6 hours (21600000 ms)
-setInterval(createAutoBackup, 6 * 60 * 60 * 1000);
+// Schedule periodic backups every 1 minute (60000 ms) - FOR TESTING
+// Production: use 6 * 60 * 60 * 1000 for 6 hours
+setInterval(createAutoBackup, 60000);

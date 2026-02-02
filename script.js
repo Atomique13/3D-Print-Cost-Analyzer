@@ -378,17 +378,37 @@ function handleImport() {
         globalSettings = data.globalSettings || globalSettings;
         jobs = data.jobs || [];
         nextId = Math.max(...jobs.map(j => j.id), 0) + 1;
-        saveData();
-        renderGlobalSettings();
-        renderTable();
-        textarea.style.display = 'none';
-        alert('Data imported successfully.');
+        
+        // Use import endpoint for backup
+        fetch('/api/import', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ globalSettings, jobs, nextId })
+        }).then(response => {
+            if (response.ok) {
+                renderGlobalSettings();
+                renderTable();
+                textarea.style.display = 'none';
+                alert('Data imported successfully.');
+            } else {
+                throw new Error('Import failed');
+            }
+        }).catch(err => {
+            console.error('Error importing data:', err);
+            // Fallback to localStorage
+            localStorage.setItem('3dPrintPricingData', JSON.stringify({ globalSettings, jobs, nextId }));
+            renderGlobalSettings();
+            renderTable();
+            textarea.style.display = 'none';
+            alert('Data imported successfully.');
+        });
     } catch (e) {
         alert('Invalid JSON.');
     }
 }
 
 // Update backup status display
+// Shows: "just now", "X min(s) ago", "Xh Xm ago", or "No backups yet"
 async function updateBackupStatus() {
     try {
         const response = await fetch('/api/last-backup');
