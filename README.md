@@ -4,6 +4,8 @@
 
 A powerful web app for 3D printing enthusiasts and businesses. Built with vanilla HTML, CSS, and JavaScript – runs both locally in your browser and on a server for multi-device synchronization.
 
+**🌐 Try it online:** https://atomique13.github.io/3d-print-cost-analyzer/
+
 ## Two Deployment Modes
 
 ### 1. Local Mode (Browser-Based)
@@ -44,6 +46,9 @@ A powerful web app for 3D printing enthusiasts and businesses. Built with vanill
 - Profit estimation with smart formula
 
 ## Quick Start
+
+### Live Demo (GitHub Pages)
+Open https://atomique13.github.io/3d-print-cost-analyzer/ to use the app directly in your browser with localStorage persistence.
 
 ### Local (No Installation)
 1. Download or clone the repo
